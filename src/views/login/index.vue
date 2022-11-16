@@ -1,10 +1,24 @@
 <template>
-  <div class="login-container">
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
-      <div class="title-container">
-        <h3 class="title">Login Form</h3>
-      </div>
+  <div class="login-container">
+    <div class="title-container">
+      <h1 class="title">Hity后台</h1>
+    </div>
+
+    <el-form
+      v-show="activeName==='login'"
+      ref="loginForm"
+      :model="loginForm"
+      :rules="loginRules"
+      auto-complete="on"
+      class="login-form"
+      label-position="left"
+    >
+
+      <el-tabs v-model="activeName" @tab-click="handleClick" style="color: white">
+        <el-tab-pane label="登录" name="login" />
+        <el-tab-pane label="注册" name="register" />
+      </el-tabs>
 
       <el-form-item prop="username">
         <span class="svg-container">
@@ -13,11 +27,11 @@
         <el-input
           ref="username"
           v-model="loginForm.username"
-          placeholder="Username"
-          name="username"
-          type="text"
-          tabindex="1"
           auto-complete="on"
+          name="username"
+          placeholder="Username"
+          tabindex="1"
+          type="text"
         />
       </el-form-item>
 
@@ -30,10 +44,10 @@
           ref="password"
           v-model="loginForm.password"
           :type="passwordType"
-          placeholder="Password"
-          name="password"
-          tabindex="2"
           auto-complete="on"
+          name="password"
+          placeholder="Password"
+          tabindex="2"
           @keyup.enter.native="handleLogin"
         />
         <span class="show-pwd" @click="showPwd">
@@ -41,45 +55,133 @@
         </span>
       </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
+      <el-button
+        :loading="loading"
+        style="width:100%;margin-bottom:30px;"
+        type="primary"
+        @click.native.prevent="handleLogin"
+      >登录
+      </el-button>
 
-      <div class="tips">
-        <span style="margin-right:20px;">username: admin</span>
-        <span> password: any</span>
-      </div>
+    </el-form>
+
+    <el-form
+      v-show="activeName=='register'"
+      ref="registerForm"
+      :model="registerForm"
+      :rules="registerRules"
+      auto-complete="on"
+      class="login-form"
+      label-position="left"
+    >
+
+      <el-tabs v-model="activeName" @tab-click="handleClick">
+        <el-tab-pane label="登录" name="login" />
+        <el-tab-pane label="注册" name="register" />
+      </el-tabs>
+      <el-form-item prop="username">
+        <span class="svg-container">
+          <svg-icon icon-class="user" />
+        </span>
+        <el-input
+          ref="username"
+          v-model="registerForm.username"
+          auto-complete="on"
+          name="username"
+          placeholder="Username"
+          tabindex="1"
+          type="text"
+        />
+      </el-form-item>
+
+      <el-form-item prop="name">
+        <span class="svg-container">
+          <svg-icon icon-class="user" />
+        </span>
+        <el-input
+          ref="name"
+          v-model="registerForm.name"
+          auto-complete="on"
+          name="name"
+          placeholder="name"
+          tabindex="1"
+          type="text"
+        />
+      </el-form-item>
+
+      <el-form-item prop="email">
+        <span class="svg-container">
+          <svg-icon icon-class="user" />
+        </span>
+        <el-input
+          ref="email"
+          v-model="registerForm.email"
+          auto-complete="on"
+          name="email"
+          placeholder="email"
+          tabindex="1"
+          type="text"
+        />
+      </el-form-item>
+
+      <el-form-item prop="password">
+        <span class="svg-container">
+          <svg-icon icon-class="password" />
+        </span>
+        <el-input
+          :key="passwordType"
+          ref="password"
+          v-model="registerForm.password"
+          :type="passwordType"
+          auto-complete="on"
+          name="password"
+          placeholder="Password"
+          tabindex="2"
+          @keyup.enter.native="handleLogin"
+        />
+        <span class="show-pwd" @click="showPwd">
+          <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+        </span>
+      </el-form-item>
+
+      <el-button
+        :loading="loading"
+        style="width:100%;margin-bottom:30px;"
+        type="primary"
+        @click.native.prevent="handleRegister"
+      >提交
+      </el-button>
 
     </el-form>
   </div>
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
-
+import {register} from "@/api/user";
 export default {
   name: 'Login',
   data() {
-    const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
-      } else {
-        callback()
-      }
-    }
-    const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error('The password can not be less than 6 digits'))
-      } else {
-        callback()
-      }
-    }
     return {
+      activeName: 'login',
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        username: '',
+        password: ''
+      },
+      registerForm: {
+        username: '',
+        name: '',
+        email: '',
+        password: ''
+      },
+      registerRules: {
+        username: [{ required: true, trigger: 'blur' }],
+        name: [{ required: true, trigger: 'blur' }],
+        email: [{ required: true, trigger: 'blur' }],
+        password: [{ required: true, trigger: 'blur' }]
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        username: [{ required: true, trigger: 'blur' }],
+        password: [{ required: true, trigger: 'blur' }]
       },
       loading: false,
       passwordType: 'password',
@@ -95,6 +197,34 @@ export default {
     }
   },
   methods: {
+    handleClick() {
+      console.log('change tab')
+    },
+    async registerUser(formName){
+      const msg =  await register(formName)
+      this.$message({
+        message:msg.msg,
+        type:"success"
+      })
+    },
+    handleRegister() {
+      this.$refs.registerForm.validate(valid => {
+        if (valid) {
+          this.loading = true
+          this.registerUser(this.registerForm).then(() => {
+            this.activeName = 'login'
+            this.loginForm.username = this.registerForm.username
+            this.loginForm.password = this.registerForm.password
+            this.loading = false
+          }).catch(() => {
+            this.loading = false
+          })
+        } else {
+          console.log('error submit!!')
+          return false
+        }
+      })
+    },
     showPwd() {
       if (this.passwordType === 'password') {
         this.passwordType = ''
@@ -128,11 +258,9 @@ export default {
 <style lang="scss">
 /* 修复input 背景不协调 和光标变色 */
 /* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
-
-$bg:#283443;
-$light_gray:#fff;
+$bg: #283443;
+$light_gray: #fff;
 $cursor: #fff;
-
 @supports (-webkit-mask: none) and (not (cater-color: $cursor)) {
   .login-container .el-input input {
     color: $cursor;
@@ -173,10 +301,9 @@ $cursor: #fff;
 </style>
 
 <style lang="scss" scoped>
-$bg:#2d3a4b;
-$dark_gray:#889aa4;
-$light_gray:#eee;
-
+$bg: #2d3a4b;
+$dark_gray: #889aa4;
+$light_gray: #eee;
 .login-container {
   min-height: 100%;
   width: 100%;
@@ -187,13 +314,13 @@ $light_gray:#eee;
     position: relative;
     width: 520px;
     max-width: 100%;
-    padding: 160px 35px 0;
+    padding: 30px 35px 0;
     margin: 0 auto;
     overflow: hidden;
   }
 
   .tips {
-    font-size: 14px;
+    font-size: 18px;
     color: #fff;
     margin-bottom: 10px;
 
@@ -213,6 +340,7 @@ $light_gray:#eee;
   }
 
   .title-container {
+    margin-top: 8%;
     position: relative;
 
     .title {
@@ -234,4 +362,31 @@ $light_gray:#eee;
     user-select: none;
   }
 }
+
+/*.el-tabs{
+  text-align: center;
+  padding-left: 30%;
+  padding-right: 40%;
+}*/
+/*tabs 去掉el-tab-pane切换时的蓝色下划线*/
+
+::v-deep {
+  .el-tabs {
+    .el-tabs__item {
+
+      left: 160%;
+      color:orange;
+      font-size: medium;
+      text-align: center;
+    }.el-tabs__nav-wrap::after {
+       position: static !important;
+     }
+    .el-tabs__active-bar {
+      background-color: transparent !important;
+    }  .is-active {
+         color: #1482f0 !important;
+       }
+  }
+}
+
 </style>
